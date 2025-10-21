@@ -86,6 +86,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Features
         [NUnit.Framework.CategoryAttribute("Login")]
         [NUnit.Framework.TestCaseAttribute("standard_user", "secret_sauce", null)]
         [NUnit.Framework.TestCaseAttribute("problem_user", "secret_sauce", null)]
+        [NUnit.Framework.TestCaseAttribute("", "", null)]
         public async System.Threading.Tasks.Task TestLoginWithDifferentCredentials(string username, string password, string[] exampleTags)
         {
             string[] @__tags = new string[] {

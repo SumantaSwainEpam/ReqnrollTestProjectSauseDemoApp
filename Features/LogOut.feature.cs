@@ -20,17 +20,17 @@ namespace ReqnrollTestProjectSauseDemoApp.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("Calculator")]
-    public partial class CalculatorFeature
+    [NUnit.Framework.DescriptionAttribute("LogOut")]
+    public partial class LogOutFeature
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Calculator", "Simple calculator for adding two numbers", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "LogOut", "Testing the Logout Feature of Sauce Demo App", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
-#line 1 "Calculator.feature"
+#line 1 "LogOut.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
@@ -82,14 +82,24 @@ namespace ReqnrollTestProjectSauseDemoApp.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add two numbers")]
-        [NUnit.Framework.CategoryAttribute("mytag")]
-        public async System.Threading.Tasks.Task AddTwoNumbers()
+        [NUnit.Framework.DescriptionAttribute("Test Logout Functionality for different users")]
+        [NUnit.Framework.CategoryAttribute("Logout")]
+        [NUnit.Framework.TestCaseAttribute("standard_user", "secret_sauce", null)]
+        [NUnit.Framework.TestCaseAttribute("problem_user", "secret_sauce", null)]
+        [NUnit.Framework.TestCaseAttribute("", "", null)]
+        public async System.Threading.Tasks.Task TestLogoutFunctionalityForDifferentUsers(string username, string password, string[] exampleTags)
         {
-            string[] tagsOfScenario = new string[] {
-                    "mytag"};
+            string[] @__tags = new string[] {
+                    "Logout"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Add two numbers", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            argumentsOfScenario.Add("username", username);
+            argumentsOfScenario.Add("password", password);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Test Logout Functionality for different users", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 6
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -101,16 +111,19 @@ this.ScenarioInitialize(scenarioInfo);
             {
                 await this.ScenarioStartAsync();
 #line 7
- await testRunner.GivenAsync("the first number is 50", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync(string.Format("I am logged in as \"{0}\" with \"{1}\"", username, password), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 8
- await testRunner.AndAsync("the second number is 70", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.WhenAsync("I click on the menu button", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
- await testRunner.WhenAsync("the two numbers are added", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.AndAsync("I select the logout option", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 10
- await testRunner.ThenAsync("the result should be 120", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("I should be redirected to the login page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 11
+    await testRunner.AndAsync("I should see the login form", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

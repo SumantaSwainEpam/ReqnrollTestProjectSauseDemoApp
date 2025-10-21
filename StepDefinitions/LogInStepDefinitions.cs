@@ -1,45 +1,69 @@
 using System;
 using Reqnroll;
+using ReqnrollTestProjectSauseDemoApp.Pages;
+using ReqnrollTestProjectSauseDemoApp.Hooks;
+using ReqnrollTestProjectSauseDemoApp.Drivers;
+using ReqnrollTestProjectSauseDemoApp.Credentials;
+using OpenQA.Selenium;
+using FluentAssertions;
 
 namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
 {
     [Binding]
     public class LogInStepDefinitions
-    {
+    {   
+        private LoginPage _loginPage;
+
+        public LogInStepDefinitions(Hook hook)
+        {
+           
+            _loginPage = new LoginPage();
+
+        }
+
         [Given("I am on the Sauce Demo login page")]
         public void GivenIAmOnTheSauceDemoLoginPage()
         {
-            throw new PendingStepException();
+           WebDriverFactory.GetWebDriver().Navigate().GoToUrl(CredentialsManager.GetBaseUrl());
         }
 
         [When("I enter username {string}")]
         public void WhenIEnterUsername(string p0)
         {
-            throw new PendingStepException();
+            var finalUsername = string.IsNullOrEmpty(p0)
+                ? CredentialsManager.GetDefaultUsername()
+                : p0;
+
+            _loginPage.EnterUsername(finalUsername);
+           
         }
 
         [When("I enter password {string}")]
         public void WhenIEnterPassword(string p0)
         {
-            throw new PendingStepException();
+           var finalPassword = string.IsNullOrEmpty(p0)
+                ? CredentialsManager.GetDefaultPassword()
+                : p0;
+            _loginPage.EnterPassword(finalPassword);
         }
 
         [When("I click on the login button")]
         public void WhenIClickOnTheLoginButton()
         {
-            throw new PendingStepException();
+            _loginPage.ClickLoginButton();
+
         }
 
         [Then("I should be redirected to the inventory page")]
         public void ThenIShouldBeRedirectedToTheInventoryPage()
         {
-            throw new PendingStepException();
+            _loginPage.IsAppLogoDisplayed().Should().BeTrue();
         }
 
         [Then("I should see the products list")]
         public void ThenIShouldSeeTheProductsList()
         {
-            throw new PendingStepException();
+            _loginPage.GetAppLogoText().Should().Be(CredentialsManager.GetAppTitle());
         }
     }
 }

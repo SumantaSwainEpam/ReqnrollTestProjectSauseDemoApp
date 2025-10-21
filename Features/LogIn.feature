@@ -15,3 +15,4 @@ Examples:
 	| username      | password     |
 	| standard_user | secret_sauce |
 	| problem_user  | secret_sauce |
+    |               |              | # Will fallback to AppConfig.json default
