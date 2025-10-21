@@ -1,5 +1,8 @@
 ﻿# Reqnroll Test Automation Framework for Sauce Demo App
 
+## Author
+Sumanta Swain (EPAM Systems)
+
 ## Overview
 This is a Reqnroll-based test automation framework for the Sauce Demo application. The framework is built using .NET 8, Selenium WebDriver, and follows the Page Object Model design pattern.
 
