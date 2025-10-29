@@ -1,0 +1,76 @@
+name: Reqnroll Test Project Sause Demo App
+
+on:
+  push:
+    branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '8.0' ]
+        browser: [ chrome, firefox, edge ]  # Parallel cross-browser test runs
+
+    env:
+      BROWSER: ${{ matrix.browser }}
+      REPORT_DIR: Reports
+      LOG_DIR: Logs
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup .NET
+      - name: ⚙️ Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      # Step 3: Cache NuGet packages for faster builds
+      - name: 🧩 Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Step 4: Restore dependencies
+      - name: 📦 Restore dependencies
+        run: dotnet restore
+
+      # Step 5: Build solution
+      - name: 🏗️ Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      # Step 6: Run tests with ExtentReports output
+      - name: 🧪 Run tests on ${{ matrix.browser }}
+        run: |
+          echo "Running tests on browser: $BROWSER"
+          dotnet test --no-build --configuration Release \
+            --filter FullyQualifiedName~SauseLabPomProject.Tests.LoginPageTest \
+            --logger "trx;LogFileName=test_results_${{ matrix.browser }}.trx"
+
+      # Step 7: Upload ExtentReports & logs as artifacts
+      - name: 📤 Upload Reports & Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reports-and-Logs-${{ matrix.browser }}
+          path: |
+            ${{ env.REPORT_DIR }}/
+            ${{ env.LOG_DIR }}/
+            **/*.trx
+
+      # Step 8: Summary of test status
+      - name: ✅ Job Summary
+        if: always()
+        run: |
+          echo "### ✅ Test Summary for Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
+          echo "- Build & Tests completed on $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: ${{ runner.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
