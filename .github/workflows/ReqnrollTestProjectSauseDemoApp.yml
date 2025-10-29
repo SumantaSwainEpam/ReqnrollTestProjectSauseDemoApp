@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "Running tests on browser: $BROWSER"
           dotnet test --no-build --configuration Release \
-            --filter FullyQualifiedName~SauseLabPomProject.Tests.LoginPageTest \
+            --filter FullyQualifiedName~ReqnrollTestProjectSauseDemoApp.StepDefinitions\
             --logger "trx;LogFileName=test_results_${{ matrix.browser }}.trx"
 
       # Step 7: Upload ExtentReports & logs as artifacts
