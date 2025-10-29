@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 
@@ -26,9 +27,53 @@ namespace ReqnrollTestProjectSauseDemoApp.Helper
             });
         }
 
-        public IWebElement WaitUntilClickable(By locator)
+        public IReadOnlyCollection<IWebElement> FindAll(By locator)
         {
-            return _wait.Until(ExpectedConditions.ElementToBeClickable(locator));
+            return _driver.FindElements(locator);
+        }
+
+        public IWebElement WaitUntilVisible(By locator, int timeoutSeconds = 10)
+        {
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutSeconds));
+            return wait.Until(ExpectedConditions.ElementIsVisible(locator));
+        }
+
+        public IWebElement WaitUntilInvisible(By locator, int timeoutSeconds = 10)
+        {
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutSeconds));
+            return wait.Until(driver =>
+            {
+                var element = driver.FindElement(locator);
+                return !element.Displayed ? element : null;
+            });
+        }
+
+        public IWebElement IsDisplayed(By locator, int timeoutSeconds = 10)
+        {
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutSeconds));
+            return wait.Until(driver =>
+            {
+                var element = driver.FindElement(locator);
+                return element.Displayed ? element : null;
+            });
+        }
+
+        public bool IsDisplayed(By locator)
+        {
+            try
+            {
+                return Find(locator).Displayed;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IWebElement WaitUntilClickable(By locator, int timeoutSeconds = 10)
+        {
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutSeconds));
+            return wait.Until(ExpectedConditions.ElementToBeClickable(locator));
         }
 
         // ---------------- Actions ----------------
@@ -74,23 +119,11 @@ namespace ReqnrollTestProjectSauseDemoApp.Helper
             return Find(locator).Text;
         }
 
-        public bool IsDisplayed(By locator)
-        {
-            try
-            {
-                return Find(locator).Displayed;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         // ---------------- Advanced Utilities ----------------
         public void Hover(By locator)
         {
             var element = Find(locator);
-            var actions = new OpenQA.Selenium.Interactions.Actions(_driver);
+            var actions = new Actions(_driver);
             actions.MoveToElement(element).Perform();
         }
 
@@ -124,6 +157,23 @@ namespace ReqnrollTestProjectSauseDemoApp.Helper
         {
             var screenshot = ((ITakesScreenshot)_driver).GetScreenshot();
             screenshot.SaveAsFile(filePath);
+        }
+
+        // ---------------- Browser Utilities ----------------
+        /// <summary>
+        /// Returns the current URL of the active browser window.
+        /// </summary>
+        public string GetCurrentUrl()
+        {
+            return _driver.Url;
+        }
+
+        /// <summary>
+        /// Returns the title of the current page.
+        /// </summary>
+        public string GetPageTitle()
+        {
+            return _driver.Title;
         }
     }
 }

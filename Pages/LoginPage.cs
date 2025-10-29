@@ -20,7 +20,8 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         #region Locators
         private By _usernameInput =>By.Id("user-name");
         private By _passwordInput => By.Id("password");
-        private By _loginButton => By.Id("login-button");
+        //private By _loginButton => By.Id("login-button");
+        private IWebElement _loginButton => _helper.Find(By.Id("login-button"));
         private By AppLogo => By.CssSelector(".app_logo");
         #endregion
 
@@ -47,7 +48,8 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         /// </summary>
         public void ClickLoginButton()
         {
-            _helper.Click(_loginButton);
+            _helper.ClickElement(_loginButton);
+           // _helper.Click(_loginButton);
         }
 
         /// <summary>

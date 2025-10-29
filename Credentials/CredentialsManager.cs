@@ -57,5 +57,41 @@ namespace ReqnrollTestProjectSauseDemoApp.Credentials
                 ?? throw new InvalidOperationException("AppTitle not found in AppConfig.json");
        }
 
+        public static List<string> GetBrowsers()
+        {
+            return _configuration.GetSection("TestSettings:Browsers").Get<List<string>>() ?? new List<string>();
+        }
+
+        public static string GetDefaultBrowser()
+        {
+            return _configuration["TestSettings:DefaultBrowser"] ?? "chrome";
+        }
+
+        
+        public static string GetBrowserByIndex(int index)
+        {
+            var browsers = GetBrowsers();
+            string defaultBrowser = GetDefaultBrowser();
+
+            if (browsers == null || browsers.Count == 0)
+            {
+               
+                return defaultBrowser;
+            }
+
+            if (index < 0 || index >= browsers.Count)
+            {
+                
+                return defaultBrowser;
+            }
+
+            return browsers[index];
+        }
     }
+
+
+
+
+
 }
+
