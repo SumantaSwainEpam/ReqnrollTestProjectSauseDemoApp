@@ -65,29 +65,30 @@ jobs:
             **/${{ env.TEST_RESULTS_DIR }}/
             **/*.trx
 
-      
-      - name: 📝 Generate Test Summary
+      - name: Generate Test Summary
         if: always()
         run: |
           echo "### 🧪 Test Summary for Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
-          TRX_FILE=$(find ${{ env.TEST_RESULTS_DIR }} -name "test_results_${{ matrix.browser }}.trx" | head -1)
-          
-          if [ -f "$TRX_FILE" ]; then
-            # Use ReportGenerator to extract accurate results
-            dotnet tool install --global dotnet-reportgenerator-globaltool
-            ~/.dotnet/tools/reportgenerator \
-              "-reports:$TRX_FILE" \
-              "-targetdir:summary_temp" \
-              "-reporttypes:TextSummary"
 
-            echo "" >> $GITHUB_STEP_SUMMARY
-            cat summary_temp/Summary.txt >> $GITHUB_STEP_SUMMARY
+          TRX_FILE=$(find ${{ env.TEST_RESULTS_DIR }} -name "test_results_${{ matrix.browser }}.trx" | head -1)
+          if [ -f "$TRX_FILE" ]; then
+            PASSED=$(grep -o 'outcome="Passed"' "$TRX_FILE" | wc -l)
+            FAILED=$(grep -o 'outcome="Failed"' "$TRX_FILE" | wc -l)
+            SKIPPED=$(grep -o 'outcome="NotExecuted"' "$TRX_FILE" | wc -l)
+            TOTAL=$((PASSED + FAILED + SKIPPED))
+
+            echo "- ✅ Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ❌ Failed: $FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "- ⚠️ Skipped: $SKIPPED" >> $GITHUB_STEP_SUMMARY
+            echo "- 🧩 Total: $TOTAL" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ⚠️ No TRX file found for parsing results." >> $GITHUB_STEP_SUMMARY
           fi
 
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "- 📂 Logs and HTML reports are available in uploaded artifacts." >> $GITHUB_STEP_SUMMARY
 
+      
 
       - name: 🧹 Cleanup workspace
         if: always()
