@@ -4,8 +4,6 @@ on:
   push:
     branches: [ master ]
   workflow_dispatch:
-  # pull_request:
-  #   branches: [ master ]
 
 jobs:
   build-and-test:
@@ -13,7 +11,7 @@ jobs:
     strategy:
       matrix:
         dotnet-version: [ '8.0' ]
-        browser: [ chrome, firefox, edge ]  # Parallel browser testing
+        browser: [ chrome, firefox, edge ]
 
     env:
       BROWSER: ${{ matrix.browser }}
@@ -25,18 +23,18 @@ jobs:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
     steps:
-      # Step 1️: Checkout repository
-      - name: Checkout code
+      # Step 1: Checkout
+      - name: 🧾 Checkout code
         uses: actions/checkout@v4
 
-      # Step 2️: Setup .NET SDK
-      - name: Setup .NET ${{ matrix.dotnet-version }}
+      # Step 2: Setup .NET
+      - name: ⚙️ Setup .NET ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      # Step 3️: Cache NuGet packages for faster builds
-      - name: Cache NuGet packages
+      # Step 3: Cache NuGet packages
+      - name: 💾 Cache NuGet packages
         uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
@@ -44,15 +42,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      # Step 4️: Restore project dependencies
-      - name: Restore dependencies
+      # Step 4: Restore dependencies
+      - name: 📦 Restore dependencies
         run: dotnet restore
 
-      # Step 5️: Build the solution
-      - name:  Build solution
+      # Step 5: Build project
+      - name: 🏗️ Build solution
         run: dotnet build --no-restore --configuration Release
 
-      # Step 6️: Run BDD (ReqnRoll) tests per browser
+      # Step 6: Run tests
       - name: 🧪 Run Reqnroll Tests on ${{ matrix.browser }}
         run: |
           echo "🌐 Running tests on browser: $BROWSER"
@@ -62,7 +60,7 @@ jobs:
             --results-directory ${{ env.TEST_RESULTS_DIR }} \
             --verbosity normal
 
-      # Step 7️: Upload logs, reports, and TRX results as artifacts
+      # Step 7: Upload logs and TRX
       - name: 📤 Upload Reports & Logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -74,8 +72,8 @@ jobs:
             **/${{ env.TEST_RESULTS_DIR }}/
             **/*.trx
 
-      # Step 8️: Generate browser-wise test summary
-      - name: Generate Test Summary
+      # Step 8: Test summary in GitHub UI
+      - name: 🧾 Generate Test Summary
         if: always()
         run: |
           echo "### 🧪 Test Summary for Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
@@ -88,45 +86,49 @@ jobs:
           else
             echo "- ⚠️ No TRX file found for parsing results." >> $GITHUB_STEP_SUMMARY
           fi
-          echo "- 🗂️ Logs and HTML reports are available in uploaded artifacts." >> $GITHUB_STEP_SUMMARY
+          echo "- 📂 Logs and HTML reports are available in uploaded artifacts." >> $GITHUB_STEP_SUMMARY
 
-      # Step 9️: Cleanup temporary files
-      - name: Cleanup workspace
+      # Step 9: Cleanup
+      - name: 🧹 Cleanup workspace
         if: always()
         run: |
           rm -rf ${{ env.TEST_RESULTS_DIR }} || true
           rm -rf ${{ env.REPORT_DIR }} || true
           rm -rf ${{ env.LOG_DIR }} || true
 
-  # Step 10: Combine TRX results (after matrix runs complete)
+  # Step 10: Combine Reports after matrix jobs
   combine-reports:
     runs-on: ubuntu-latest
     needs: [build-and-test]
     steps:
-      - name: Checkout code
+      - name: 🧾 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: ⚙️ Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0'
 
-      - name: Download all test artifacts
+      - name: 📥 Download all test artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
-      - name: Install ReportUnit
-        run: dotnet tool install --global ReportUnit
+      # ✅ Replaced ReportUnit with ReportGenerator (modern & maintained)
+      - name: 📊 Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
         env:
           PATH: $PATH:/home/runner/.dotnet/tools
 
-      - name: Generate Combined HTML Report
+      - name: 📈 Generate Combined HTML Report
         run: |
           mkdir -p CombinedReport
-          reportunit ./artifacts ./CombinedReport
+          reportgenerator \
+            "-reports:./artifacts/**/*.trx" \
+            "-targetdir:./CombinedReport" \
+            "-reporttypes:HtmlInline_AzurePipelines;TextSummary"
 
-      - name: Upload Combined HTML Report
+      - name: 📤 Upload Combined HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: Combined-HTML-Report
