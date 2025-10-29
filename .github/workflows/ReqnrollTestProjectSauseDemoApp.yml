@@ -3,36 +3,33 @@ name: Reqnroll Test Project Sause Demo App
 on:
   push:
     branches: [ master ]
-  # pull_request:
-  #   branches: [ master ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         dotnet-version: [ '8.0' ]
-        browser: [ chrome, firefox, edge ]  # Run tests in parallel on multiple browsers
+        browser: [ chrome, firefox, edge ]  # Cross-browser matrix
 
     env:
       BROWSER: ${{ matrix.browser }}
       REPORT_DIR: Reports
       LOG_DIR: Logs
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: true
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
     steps:
-      # Step 1️⃣: Checkout source code
-      - name: 🧾 Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2️⃣: Setup .NET SDK
-      - name: ⚙️ Setup .NET ${{ matrix.dotnet-version }}
+      - name: Setup .NET ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      # Step 3️⃣: Cache NuGet packages for faster builds
-      - name: 🧩 Cache NuGet packages
+      - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
@@ -40,25 +37,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      # Step 4️⃣: Restore project dependencies
-      - name: 📦 Restore dependencies
+      - name: Restore dependencies
         run: dotnet restore
 
-      # Step 5️⃣: Build the solution
-      - name: 🏗️ Build solution
+      - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      # Step 6️⃣: Run tests in headless mode (Selenium + ReqNroll)
-      - name: 🧪 Run BDD tests on ${{ matrix.browser }}
+      - name: Run Reqnroll BDD Tests on ${{ matrix.browser }}
         run: |
-          echo "Running tests on browser: $BROWSER"
+          echo "🌐 Running tests on browser: $BROWSER"
           export GITHUB_ACTIONS=true
+          export BROWSER=$BROWSER
           dotnet test --no-build --configuration Release \
             --filter FullyQualifiedName~ReqnrollTestProjectSauseDemoApp.Features \
-            --logger "trx;LogFileName=test_results_${{ matrix.browser }}.trx"
+            --logger "trx;LogFileName=test_results_${{ matrix.browser }}.trx" \
+            --verbosity normal
 
-      # Step 7️⃣: Upload ExtentReports, Logs, and TRX files as artifacts
-      - name: 📤 Upload Reports & Logs
+      - name: Upload Reports & Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -68,8 +63,8 @@ jobs:
             ${{ env.LOG_DIR }}/
             **/*.trx
 
-      # Step 8️⃣: Generate a short summary in GitHub Actions
-      - name: 📊 Generate Test Summary
+       # Step 8️⃣: Generate a short summary in GitHub Actions
+      - name: Generate Test Summary
         if: always()
         run: |
           echo "### 🧪 Test Summary for Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
