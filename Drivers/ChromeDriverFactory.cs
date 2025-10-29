@@ -9,7 +9,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Drivers
         public IWebDriver CreateWebDriver()
         {
             var options = new ChromeOptions();
-            // options.AddArgument("--headless=new");
+            options.AddArgument("--headless=new");
             options.AddArgument("--guest");
             options.AddArgument("--disable-popup-blocking");
             var driver = new ChromeDriver(options);
