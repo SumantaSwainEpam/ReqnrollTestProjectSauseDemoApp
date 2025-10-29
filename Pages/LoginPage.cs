@@ -1,11 +1,6 @@
 ﻿using OpenQA.Selenium;
 using ReqnrollTestProjectSauseDemoApp.Drivers;
 using ReqnrollTestProjectSauseDemoApp.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ReqnrollTestProjectSauseDemoApp.Pages
 {
@@ -18,7 +13,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         }
 
         #region Locators
-        private By _usernameInput =>By.Id("user-name");
+        private By _usernameInput => By.Id("user-name");
         private By _passwordInput => By.Id("password");
         //private By _loginButton => By.Id("login-button");
         private IWebElement _loginButton => _helper.Find(By.Id("login-button"));
@@ -33,7 +28,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         {
             _helper.EnterText(_usernameInput, username);
         }
-        
+
         /// <summary>
         ///  Enter password into the password input field
         /// </summary>
@@ -49,7 +44,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         public void ClickLoginButton()
         {
             _helper.ClickElement(_loginButton);
-           // _helper.Click(_loginButton);
+            // _helper.Click(_loginButton);
         }
 
         /// <summary>

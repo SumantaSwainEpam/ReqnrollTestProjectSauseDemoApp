@@ -1,22 +1,19 @@
-using System;
-using Reqnroll;
-using ReqnrollTestProjectSauseDemoApp.Pages;
-using ReqnrollTestProjectSauseDemoApp.Hooks;
-using ReqnrollTestProjectSauseDemoApp.Drivers;
-using ReqnrollTestProjectSauseDemoApp.Credentials;
-using OpenQA.Selenium;
 using FluentAssertions;
+using ReqnrollTestProjectSauseDemoApp.Credentials;
+using ReqnrollTestProjectSauseDemoApp.Drivers;
+using ReqnrollTestProjectSauseDemoApp.Hooks;
+using ReqnrollTestProjectSauseDemoApp.Pages;
 
 namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
 {
     [Binding]
     public class LogInStepDefinitions
-    {   
+    {
         private LoginPage _loginPage;
 
         public LogInStepDefinitions(Hook hook)
         {
-           
+
             _loginPage = new LoginPage();
 
         }
@@ -24,7 +21,7 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
         [Given("I am on the Sauce Demo login page")]
         public void GivenIAmOnTheSauceDemoLoginPage()
         {
-           WebDriverFactory.GetWebDriver().Navigate().GoToUrl(CredentialsManager.GetBaseUrl());
+            WebDriverFactory.GetWebDriver().Navigate().GoToUrl(CredentialsManager.GetBaseUrl());
         }
 
         [When("I enter username {string}")]
@@ -35,15 +32,15 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
                 : p0;
 
             _loginPage.EnterUsername(finalUsername);
-           
+
         }
 
         [When("I enter password {string}")]
         public void WhenIEnterPassword(string p0)
         {
-           var finalPassword = string.IsNullOrEmpty(p0)
-                ? CredentialsManager.GetDefaultPassword()
-                : p0;
+            var finalPassword = string.IsNullOrEmpty(p0)
+                 ? CredentialsManager.GetDefaultPassword()
+                 : p0;
             _loginPage.EnterPassword(finalPassword);
         }
 
@@ -64,6 +61,7 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
         public void ThenIShouldSeeTheProductsList()
         {
             _loginPage.GetAppLogoText().Should().Be(CredentialsManager.GetAppTitle());
+
         }
     }
 }

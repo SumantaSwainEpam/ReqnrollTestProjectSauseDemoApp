@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using log4net;
-using System.Collections.Generic; // Add this for List<T>
-using System.IO; // Add this for Directory and Path
-using System; // Add this for Exception
-using System.Linq; // Add this for Any()
 
 namespace ReqnrollTestProjectSauseDemoApp.Credentials
 {
@@ -51,11 +46,11 @@ namespace ReqnrollTestProjectSauseDemoApp.Credentials
                 ?? throw new InvalidOperationException("Password not found in AppConfig.json");
         }
 
-       public static string GetAppTitle()
-       {
+        public static string GetAppTitle()
+        {
             return _configuration["TestSettings:AppTitle"]
                 ?? throw new InvalidOperationException("AppTitle not found in AppConfig.json");
-       }
+        }
 
         public static List<string> GetBrowsers()
         {
@@ -67,7 +62,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Credentials
             return _configuration["TestSettings:DefaultBrowser"] ?? "chrome";
         }
 
-        
+
         public static string GetBrowserByIndex(int index)
         {
             var browsers = GetBrowsers();
@@ -75,13 +70,13 @@ namespace ReqnrollTestProjectSauseDemoApp.Credentials
 
             if (browsers == null || browsers.Count == 0)
             {
-               
+
                 return defaultBrowser;
             }
 
             if (index < 0 || index >= browsers.Count)
             {
-                
+
                 return defaultBrowser;
             }
 

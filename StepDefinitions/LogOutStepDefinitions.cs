@@ -1,5 +1,3 @@
-using System;
-using Reqnroll;
 using ReqnrollTestProjectSauseDemoApp.Hooks;
 using ReqnrollTestProjectSauseDemoApp.Pages;
 
@@ -7,7 +5,7 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
 {
     [Binding]
     public class LogOutStepDefinitions
-    {   
+    {
         private readonly LogoutPage _logoutPage;
         private readonly Hook _hook;
         public LogOutStepDefinitions(Hook hook)
@@ -26,7 +24,7 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
         [When("I click on the menu button")]
         public void WhenIClickOnTheMenuButton()
         {
-           _logoutPage.ClickMenuButton();
+            _logoutPage.ClickMenuButton();
         }
 
         [When("I select the logout option")]
@@ -38,12 +36,12 @@ namespace ReqnrollTestProjectSauseDemoApp.StepDefinitions
         [Then("I should be redirected to the login page")]
         public void ThenIShouldBeRedirectedToTheLoginPage()
         {
-           _logoutPage.VerifyUserIsLoggedOut();
+            _logoutPage.VerifyUserIsLoggedOut();
         }
 
         [Then("I should see the login form")]
         public void ThenIShouldSeeTheLoginForm()
-        {    
+        {
             _logoutPage.VerifyUserAbleToSeeLoginForm();
             _logoutPage.VerifySwagLabTextDisplayed();
         }

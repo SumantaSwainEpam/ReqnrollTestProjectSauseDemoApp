@@ -1,7 +1,7 @@
-﻿using System;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using ReqnrollTestProjectSauseDemoApp.Drivers;
 using SeleniumExtras.WaitHelpers;
 
 namespace ReqnrollTestProjectSauseDemoApp.Helper
@@ -153,10 +153,11 @@ namespace ReqnrollTestProjectSauseDemoApp.Helper
             return wait.Until(ExpectedConditions.InvisibilityOfElementLocated(locator));
         }
 
-        public void TakeScreenshot(string filePath)
+        public string CaptureScreenShot()
         {
-            var screenshot = ((ITakesScreenshot)_driver).GetScreenshot();
-            screenshot.SaveAsFile(filePath);
+            ITakesScreenshot screenshotDriver = (ITakesScreenshot)WebDriverFactory.GetWebDriver();
+            var image = screenshotDriver.GetScreenshot();
+            return image.AsBase64EncodedString;
         }
 
         // ---------------- Browser Utilities ----------------

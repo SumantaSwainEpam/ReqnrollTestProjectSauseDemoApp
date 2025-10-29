@@ -2,11 +2,6 @@
 using OpenQA.Selenium;
 using ReqnrollTestProjectSauseDemoApp.Drivers;
 using ReqnrollTestProjectSauseDemoApp.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ReqnrollTestProjectSauseDemoApp.Pages
 {
@@ -16,7 +11,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
 
         public LogoutPage()
         {
-            _helper=new SeleniumHelper(WebDriverFactory.GetWebDriver());
+            _helper = new SeleniumHelper(WebDriverFactory.GetWebDriver());
         }
 
         #region Locators
@@ -76,7 +71,7 @@ namespace ReqnrollTestProjectSauseDemoApp.Pages
         /// </summary>
         public void VerifyUserAbleToSeeLoginForm()
         {
-             LoginForm.Should().NotBeNull();
+            LoginForm.Should().NotBeNull();
             _helper.IsDisplayed(LoginForm).Should().BeTrue("");
 
         }

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 
 namespace ReqnrollTestProjectSauseDemoApp.Drivers
 {
-    public class EdgeDriverFactory: IDriverFactory
+    public class EdgeDriverFactory : IDriverFactory
     {
         public IWebDriver CreateWebDriver()
         {
