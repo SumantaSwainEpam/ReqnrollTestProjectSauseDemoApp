@@ -1,5 +1,4 @@
-name: SauseLabPomProject~LoginPageTest
-
+name: ReqnrollTestProjectSauseDemoAppChrome
 on:
   push:
     branches:
