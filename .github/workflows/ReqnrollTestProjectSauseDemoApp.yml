@@ -87,6 +87,7 @@ jobs:
           rm -rf ${{ env.REPORT_DIR }} || true
           rm -rf ${{ env.LOG_DIR }} || true
 
+
   combine-reports:
     runs-on: ubuntu-latest
     needs: [build-and-test]
@@ -105,18 +106,18 @@ jobs:
         with:
           path: ./artifacts
 
-      # ✅ Install ReportGenerator locally (no PATH issue)
-      - name: 📊 Install ReportGenerator Tool
+      # ✅ Install ReportGenerator using manifest (works reliably)
+      - name: 📊 Install ReportGenerator locally
         run: |
-          mkdir -p ./.config/dotnet-tools
           dotnet new tool-manifest
           dotnet tool install dotnet-reportgenerator-globaltool
-          echo "$PWD/.config/dotnet-tools" >> $GITHUB_PATH
+          echo "$PWD/.config/dotnet/tools" >> $GITHUB_PATH
 
+      # ✅ Use dotnet tool run to ensure it finds the local tool
       - name: 📈 Generate Combined HTML Report
         run: |
           mkdir -p CombinedReport
-          ~/.dotnet/tools/reportgenerator \
+          dotnet tool run reportgenerator \
             "-reports:./artifacts/**/*.trx" \
             "-targetdir:./CombinedReport" \
             "-reporttypes:HtmlInline_AzurePipelines;TextSummary"
