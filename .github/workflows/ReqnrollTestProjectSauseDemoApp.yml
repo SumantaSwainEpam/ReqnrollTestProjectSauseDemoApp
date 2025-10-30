@@ -3,6 +3,7 @@ name: Reqnroll Test Project Sause Demo App
 on:
   push:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -10,26 +11,27 @@ jobs:
     strategy:
       matrix:
         dotnet-version: [ '8.0' ]
-        browser: [ chrome, firefox, edge ]  # Cross-browser matrix
+        browser: [ chrome, firefox, edge ]
 
     env:
       BROWSER: ${{ matrix.browser }}
       REPORT_DIR: Reports
       LOG_DIR: Logs
+      TEST_RESULTS_DIR: TestResults
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: true
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
     steps:
-      - name: Checkout code
+      - name: 🧾 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET ${{ matrix.dotnet-version }}
+      - name: ⚙️ Setup .NET ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Cache NuGet packages
+      - name: 💾 Cache NuGet packages
         uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
@@ -37,39 +39,101 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Restore dependencies
+      - name: 📦 Restore dependencies
         run: dotnet restore
 
-      - name: Build solution
+      - name: 🏗️ Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run Reqnroll BDD Tests on ${{ matrix.browser }}
+      - name: 🧪 Run Reqnroll Tests on ${{ matrix.browser }}
         run: |
           echo "🌐 Running tests on browser: $BROWSER"
-          export GITHUB_ACTIONS=true
-          export BROWSER=$BROWSER
           dotnet test --no-build --configuration Release \
             --filter FullyQualifiedName~ReqnrollTestProjectSauseDemoApp.Features \
             --logger "trx;LogFileName=test_results_${{ matrix.browser }}.trx" \
+            --results-directory ${{ env.TEST_RESULTS_DIR }} \
             --verbosity normal
 
-      - name: Upload Reports & Logs
+      - name: 📤 Upload Reports & Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Reports-and-Logs-${{ matrix.browser }}
           path: |
-            ${{ env.REPORT_DIR }}/
-            ${{ env.LOG_DIR }}/
+            **/${{ env.REPORT_DIR }}/
+            **/${{ env.LOG_DIR }}/
+            **/${{ env.TEST_RESULTS_DIR }}/
             **/*.trx
 
-       # Step 8️⃣: Generate a short summary in GitHub Actions
       - name: Generate Test Summary
         if: always()
         run: |
           echo "### 🧪 Test Summary for Browser: $BROWSER" >> $GITHUB_STEP_SUMMARY
-          PASSED=$(grep -o 'Passed: [0-9]\+' test_results_${{ matrix.browser }}.trx | head -1 | awk '{print $2}')
-          FAILED=$(grep -o 'Failed: [0-9]\+' test_results_${{ matrix.browser }}.trx | head -1 | awk '{print $2}')
-          echo "- ✅ Passed: ${PASSED:-0}" >> $GITHUB_STEP_SUMMARY
-          echo "- ❌ Failed: ${FAILED:-0}" >> $GITHUB_STEP_SUMMARY
-          echo "- 🗂️ Logs and HTML reports are available in uploaded artifacts." >> $GITHUB_STEP_SUMMARY
+
+          TRX_FILE=$(find ${{ env.TEST_RESULTS_DIR }} -name "test_results_${{ matrix.browser }}.trx" | head -1)
+          if [ -f "$TRX_FILE" ]; then
+            PASSED=$(grep -o 'outcome="Passed"' "$TRX_FILE" | wc -l)
+            FAILED=$(grep -o 'outcome="Failed"' "$TRX_FILE" | wc -l)
+            SKIPPED=$(grep -o 'outcome="NotExecuted"' "$TRX_FILE" | wc -l)
+            TOTAL=$((PASSED + FAILED + SKIPPED))
+
+            echo "- ✅ Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ❌ Failed: $FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "- ⚠️ Skipped: $SKIPPED" >> $GITHUB_STEP_SUMMARY
+            echo "- 🧩 Total: $TOTAL" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ No TRX file found for parsing results." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 📂 Logs and HTML reports are available in uploaded artifacts." >> $GITHUB_STEP_SUMMARY
+
+      
+
+      - name: 🧹 Cleanup workspace
+        if: always()
+        run: |
+          rm -rf ${{ env.TEST_RESULTS_DIR }} || true
+          rm -rf ${{ env.REPORT_DIR }} || true
+          rm -rf ${{ env.LOG_DIR }} || true
+
+
+  combine-reports:
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      - name: 📥 Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      # ✅ Install ReportGenerator using manifest (works reliably)
+      - name: 📊 Install ReportGenerator locally
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install dotnet-reportgenerator-globaltool
+          echo "$PWD/.config/dotnet/tools" >> $GITHUB_PATH
+
+      # ✅ Use dotnet tool run to ensure it finds the local tool
+      - name: 📈 Generate Combined HTML Report
+        run: |
+          mkdir -p CombinedReport
+          dotnet tool run reportgenerator \
+            "-reports:./artifacts/**/*.trx" \
+            "-targetdir:./CombinedReport" \
+            "-reporttypes:HtmlInline_AzurePipelines;TextSummary"
+
+      - name: 📤 Upload Combined HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Combined-HTML-Report
+          path: ./CombinedReport
