@@ -1,0 +1,5 @@
+[30-10-2025 16:50:25] [INFO ] [ReqnrollTestProjectSauseDemoApp.Logs.LogManager] - 🟢 Logging initialized for: Test Logout Functionality for different users
+[30-10-2025 16:50:25] [INFO ] [ReqnrollTestProjectSauseDemoApp.Logs.LogManager] - 🗂️ Logs will be saved to: C:\Users\sumanta_swain\source\repos\ReqnrollTestProjectSauseDemoApp\Logs\Test_Logout_Functionality_for_different_users_30_10_2025_16_50.log
+[30-10-2025 16:50:25] [INFO ] [ReqnrollTestProjectSauseDemoApp.Logs.LogManager] - Starting scenario: Test Logout Functionality for different users On Browser: chrome
+[30-10-2025 16:50:29] [INFO ] [ReqnrollTestProjectSauseDemoApp.Logs.LogManager] - ✅ Test Passed: Test Logout Functionality for different users
+[30-10-2025 16:50:35] [INFO ] [ReqnrollTestProjectSauseDemoApp.Logs.LogManager] - 📘 Extent Report has been flushed to: C:\Users\sumanta_swain\source\repos\ReqnrollTestProjectSauseDemoApp\Reports\ExtentReport_30_10_2025_16_50.html

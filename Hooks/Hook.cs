@@ -15,10 +15,9 @@ namespace ReqnrollTestProjectSauseDemoApp.Hooks
     {
         private readonly IObjectContainer _objectContainer;
         private readonly ScenarioContext _scenarioContext;
-        private ExtentReports _extentReports;
-        private ExtentTest _stepTest;
-        private ExtentTest _extentTest;
         private IWebDriver _driver;
+        private ExtentTest _scenarioTest;
+
         public Hook(IObjectContainer objectContainer, ScenarioContext scenarioContext)
         {
             _objectContainer = objectContainer;
@@ -59,8 +58,13 @@ namespace ReqnrollTestProjectSauseDemoApp.Hooks
             Logs.LogManager.GetLogger().Info($"Starting scenario: {scenarioTitle} On Browser: {browserType}");
 
 
-            _extentReports = ReportManager.GetReports(scenarioTitle);
-            _extentTest = _extentReports.CreateTest(scenarioTitle);
+            // Get shared report instance and create a new test node
+            var extentReports = ReportManager.GetReports();
+            _scenarioTest = extentReports.CreateTest(scenarioTitle);
+
+            // Register test node in ScenarioContext (for later step logging)
+            _scenarioContext["ExtentTest"] = _scenarioTest;
+
 
 
 
@@ -102,27 +106,36 @@ namespace ReqnrollTestProjectSauseDemoApp.Hooks
         }
 
         [AfterStep]
-        public void AfetrStep()
+        public void AfterStep()
         {
-            var stepInfo = _scenarioContext.StepContext.StepInfo.Text;
+            var stepText = _scenarioContext.StepContext.StepInfo.Text;
             var stepStatus = _scenarioContext.TestError == null ? Status.Pass : Status.Fail;
-            _stepTest = _extentTest.CreateNode(stepInfo);
-            _stepTest.Log(stepStatus, stepInfo);
 
-            if (_scenarioContext.TestError != null)
+            if (_scenarioContext.TryGetValue("ExtentTest", out ExtentTest extentTest))
             {
-                _stepTest.Fail($"Error: {_scenarioContext.TestError.Message}");
-                _stepTest.AddScreenCaptureFromBase64String(new SeleniumHelper(_driver).CaptureScreenShot());
-            }
+                var stepNode = extentTest.CreateNode(stepText);
+                stepNode.Log(stepStatus, stepText);
 
+                if (_scenarioContext.TestError != null)
+                {
+                    stepNode.Fail($"❌ Error: {_scenarioContext.TestError.Message}");
+                    stepNode.AddScreenCaptureFromBase64String(
+                        new SeleniumHelper(_driver).CaptureScreenShot(),
+                        "Screenshot on Failure"
+                    );
+                }
+            }
         }
+
+
 
 
         [AfterTestRun]
         public static void AfterTestRun()
         {
             ReportManager.FlushReports();
-            Logs.LogManager.GetLogger().Info($"Extent Report has been flushed.");
+            Logs.LogManager.GetLogger().Info($"📘 Extent Report has been flushed to: {ReportManager.GetReportPath()}");
+
         }
 
 
